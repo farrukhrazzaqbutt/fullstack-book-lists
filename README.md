@@ -1,22 +1,103 @@
 # Fullstack Book Lists
 
-A full-stack application for managing book lists. The frontend is an Angular SPA that talks to a Django REST API. You can view all books, create named lists, and add or remove books from each list.
+A full-stack web application for managing book lists. The **webapp** (Angular frontend) runs in the browser and talks to a Django REST API. You can view all books, create named lists, and add or remove books from each list.
 
 ## Tech Stack
 
-- **Frontend:** Angular 21, standalone components, Angular SSR, Express (server)
+- **Webapp (frontend):** Angular 21, standalone components, Angular SSR
 - **Backend:** Django 6, Django REST Framework, SQLite
 - **Tooling:** ESLint (Angular), Ruff (Python)
 
-## Project Structure
+---
+
+## How to install, run, lint and test the webapp
+
+### Install
+
+**1. Backend (API the webapp depends on)**
+
+- **Prerequisites:** Python 3.10+
+
+```bash
+cd backend
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_books   # optional: load sample books
+```
+
+**2. Webapp (frontend)**
+
+- **Prerequisites:** Node.js v20+ and npm
+
+```bash
+cd frontend/book-lists
+npm install
+```
+
+### Run
+
+**1. Start the backend API** (from repo root):
+
+```bash
+cd backend
+venv\Scripts\activate          # Windows (or source venv/bin/activate on macOS/Linux)
+python manage.py runserver
+```
+
+API: **http://127.0.0.1:8000/api/**
+
+**2. Start the webapp** (in a second terminal):
+
+```bash
+cd frontend/book-lists
+npm start
+```
+
+Webapp: **http://localhost:4200/**
+
+Open the webapp URL in a browser. Keep the backend running so the webapp can load books and lists.
+
+### Lint
+
+Lint the webapp (Angular/TypeScript and templates):
+
+```bash
+cd frontend/book-lists
+npm run lint
+```
+
+Optional: auto-fix what can be fixed:
+
+```bash
+npm run lint -- --fix
+```
+
+### Test
+
+**Webapp:** The project uses `npm run lint` for the frontend (no separate unit test script in package.json). To run the backend unit tests (which cover the API used by the webapp):
+
+```bash
+cd backend
+python manage.py test api
+```
+
+---
+
+## Project structure
 
 ```
 fullstack-book-lists/
-├── frontend/book-lists/    # Angular app
+├── frontend/book-lists/    # Angular webapp
 │   └── src/app/            # Components, services, routes
-├── backend/                # Django project
-│   ├── api/                # Books & lists app (models, views, serializers, tests)
-│   ├── config/             # Django settings and root URLs
+├── backend/                # Django API
+│   ├── api/                # Models, views, serializers, tests
+│   ├── config/             # Settings, root URLs
 │   └── requirements.txt
 └── README.md
 ```
@@ -27,60 +108,7 @@ fullstack-book-lists/
 - **Lists:** Create and delete named book lists.
 - **List detail:** View books in a list, add books from a dropdown, remove books from the list.
 
-## Prerequisites
-
-- **Node.js** (v20+) and **npm** for the frontend
-- **Python** (3.10+) for the backend
-
-## Backend Setup
-
-1. Create and activate a virtual environment:
-
-   ```bash
-   cd backend
-   python -m venv venv
-   # Windows:
-   venv\Scripts\activate
-   # macOS/Linux:
-   source venv/bin/activate
-   ```
-
-2. Install dependencies and run migrations:
-
-   ```bash
-   pip install -r requirements.txt
-   python manage.py migrate
-   ```
-
-3. (Optional) Seed sample books:
-
-   ```bash
-   python manage.py seed_books
-   ```
-
-4. Start the API server:
-
-   ```bash
-   python manage.py runserver
-   ```
-
-   API base URL: **http://127.0.0.1:8000/api/**
-
-## Frontend Setup
-
-1. Install dependencies and start the dev server:
-
-   ```bash
-   cd frontend/book-lists
-   npm install
-   npm start
-   ```
-
-   App URL: **http://localhost:4200/**
-
-2. Ensure the backend is running so the app can load books and lists.
-
-## API Overview
+## API overview
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -94,24 +122,8 @@ fullstack-book-lists/
 | POST | `/api/lists/{id}/books/` | Add book to list (`{"book_id": number}`) |
 | DELETE | `/api/lists/{id}/books/{book_id}/` | Remove book from list |
 
-## Running Tests
+## Notes
 
-**Backend (Django):**
-
-```bash
-cd backend
-python manage.py test api
-```
-
-**Frontend (lint):**
-
-```bash
-cd frontend/book-lists
-npm run lint
-```
-
-## Development Notes
-
-- Backend uses **CORS** with `http://localhost:4200` allowed.
-- Frontend API base URL is set to `http://127.0.0.1:8000/api` in `ApiService`.
-- Database is SQLite (`backend/db.sqlite3`).
+- Backend CORS allows `http://localhost:4200`.
+- Webapp API base URL: `http://127.0.0.1:8000/api` (see `frontend/book-lists/src/app/api.service.ts`).
+- Database: SQLite at `backend/db.sqlite3`.
